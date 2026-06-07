@@ -1,0 +1,37 @@
+---
+title: AI
+description: Vercel AI SDK with Claude and OpenAI.
+---
+
+The `@medai/ai` package wraps the Vercel AI SDK and exposes both providers.
+Claude is the default; switch per call or via `AI_DEFAULT_PROVIDER`.
+
+## Streaming chat
+
+```ts
+import { streamChat } from '@medai/ai';
+
+const result = streamChat({ messages, provider: 'anthropic' });
+return result.toUIMessageStreamResponse();
+```
+
+## One-shot completion
+
+```ts
+import { complete } from '@medai/ai';
+
+const text = await complete({ prompt: 'Summarize…', provider: 'openai' });
+```
+
+## Configuration
+
+| Env | Description |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Claude API key |
+| `OPENAI_API_KEY` | OpenAI API key |
+| `AI_DEFAULT_PROVIDER` | `anthropic` (default) or `openai` |
+
+<Note>
+All AI output carries a medical disclaimer via the shared system prompt and is
+informational only — not a substitute for professional medical advice.
+</Note>

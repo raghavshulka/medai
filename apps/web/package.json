@@ -1,0 +1,32 @@
+{
+  "name": "@medai/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^3.0.199",
+    "@medai/ai": "workspace:*",
+    "@medai/config": "workspace:*",
+    "@tanstack/react-query": "^5.101.0",
+    "@hookform/resolvers": "^5.4.0",
+    "ai": "^6.0.197",
+    "next": "^16.2.7",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-hook-form": "^7.77.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@medai/typescript-config": "workspace:*",
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}

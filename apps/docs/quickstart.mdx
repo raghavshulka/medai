@@ -1,0 +1,47 @@
+---
+title: Quickstart
+description: Run the MedAI workspace locally.
+---
+
+## Prerequisites
+
+- [Bun](https://bun.sh) ≥ 1.3
+- [Docker](https://www.docker.com) (for Redis)
+- A MongoDB connection URL (Atlas or local)
+
+## Setup
+
+<Steps>
+  <Step title="Install dependencies">
+    ```bash
+    bun install
+    ```
+  </Step>
+  <Step title="Configure environment">
+    ```bash
+    cp .env.example .env
+    # set MONGODB_URI, JWT secrets, and AI provider keys
+    ```
+  </Step>
+  <Step title="Start Redis">
+    ```bash
+    bun run db:up
+    ```
+  </Step>
+  <Step title="Run everything">
+    ```bash
+    bun run dev
+    ```
+    The API runs on `:4000`, the web app on `:3000`, and docs on `:3001`.
+  </Step>
+</Steps>
+
+## Useful scripts
+
+| Command | Description |
+| --- | --- |
+| `bun run dev` | Run all apps in watch mode |
+| `bun run build` | Build all apps and packages |
+| `bun run test` | Run the test suites |
+| `bun run typecheck` | Type-check every workspace |
+| `bun run check` | Format + lint with Biome |

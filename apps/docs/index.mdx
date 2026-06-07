@@ -1,0 +1,22 @@
+---
+title: MedAI Platform
+description: A medical AI platform built on Turborepo, Bun, Express, and Next.js.
+---
+
+# MedAI
+
+MedAI is a Turborepo monorepo for building a medical AI platform.
+
+## Stack
+
+- **Monorepo** — Turborepo + Bun workspaces
+- **Backend** — Bun + Express 5 API with BullMQ workers
+- **Frontend** — Next.js 16 (App Router, React 19) + TanStack Query
+- **Data** — MongoDB (Mongoose) + Redis (ioredis)
+- **AI** — Vercel AI SDK with Anthropic (Claude) and OpenAI providers
+- **Auth** — JWT access/refresh, bcrypt passwords, TOTP 2FA (speakeasy)
+- **Tooling** — Biome, Vitest, Zod, Pino, PDFKit
+
+<Card title="Quickstart" href="/quickstart" icon="rocket">
+  Get the workspace running locally.
+</Card>

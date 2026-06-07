@@ -1,0 +1,22 @@
+---
+title: Packages
+description: The shared internal packages.
+---
+
+| Package | Purpose | Key deps |
+| --- | --- | --- |
+| `@medai/config` | Zod-validated env helpers (`lazyEnv`, `parseEnv`) | zod |
+| `@medai/logger` | Pino logger with redaction | pino |
+| `@medai/db` | Mongoose connection + `User` / `Conversation` models | mongoose |
+| `@medai/auth` | Passwords, JWT pairs, TOTP 2FA, schemas | bcryptjs, jsonwebtoken, speakeasy |
+| `@medai/queue` | BullMQ queues/workers + shared Redis client | bullmq, ioredis |
+| `@medai/ai` | Vercel AI SDK wrappers, Claude + OpenAI | ai, @ai-sdk/\* |
+| `@medai/pdf` | Medical report PDF generation | pdfkit |
+
+Import anything from its package root:
+
+```ts
+import { connectMongo, UserModel } from '@medai/db';
+import { issueTokenPair, hashPassword } from '@medai/auth';
+import { streamChat, complete } from '@medai/ai';
+```

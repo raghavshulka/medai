@@ -1,0 +1,13 @@
+{
+  "name": "@medai/docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "mint dev",
+    "build": "mint broken-links",
+    "lint": "mint broken-links"
+  },
+  "devDependencies": {
+    "mint": "^4.2.598"
+  }
+}

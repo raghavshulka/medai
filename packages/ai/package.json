@@ -1,0 +1,24 @@
+{
+  "name": "@medai/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.81",
+    "@ai-sdk/openai": "^3.0.68",
+    "@medai/config": "workspace:*",
+    "ai": "^6.0.197",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@medai/typescript-config": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,31 @@
+---
+title: Authentication
+description: JWT access/refresh tokens with TOTP two-factor.
+---
+
+## Token strategy
+
+- **Access token** — short-lived JWT (`JWT_ACCESS_TTL`, default 15m), sent as a
+  `Bearer` header.
+- **Refresh token** — long-lived JWT (`JWT_REFRESH_TTL`, default 30d) whose `jti`
+  is tracked in Redis. Refreshing **rotates** the token (old `jti` revoked).
+- **tokenVersion** — bump on a user to invalidate every outstanding refresh
+  token at once.
+
+## Endpoints
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/auth/register` | Create an account, returns a token pair |
+| `POST` | `/auth/login` | Password (+ TOTP if enabled) → token pair |
+| `POST` | `/auth/refresh` | Rotate a refresh token |
+| `POST` | `/auth/logout` | Revoke a refresh token |
+| `GET` | `/auth/me` | Current user (requires access token) |
+| `POST` | `/auth/2fa/setup` | Generate a TOTP secret + QR code |
+| `POST` | `/auth/2fa/enable` | Verify a code, enable 2FA, return recovery codes |
+
+## Two-factor (TOTP)
+
+Secrets are generated with **speakeasy**, rendered as a QR code with **qrcode**,
+and verified with a ±1 step window. Recovery codes are shown once and stored as
+SHA-256 hashes.

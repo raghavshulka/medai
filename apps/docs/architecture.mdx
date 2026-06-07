@@ -1,0 +1,37 @@
+---
+title: Architecture
+description: How the monorepo fits together.
+---
+
+## Workspace layout
+
+```
+medai/
+├── apps/
+│   ├── api/    Bun + Express 5 API, BullMQ worker
+│   ├── web/    Next.js 16 frontend (TanStack Query, AI SDK)
+│   └── docs/   Mintlify documentation (this site)
+└── packages/
+    ├── config/   Zod env helpers shared everywhere
+    ├── logger/   Pino logger
+    ├── db/       Mongoose connection + models
+    ├── auth/     Passwords, JWT, TOTP 2FA, Zod schemas
+    ├── queue/    BullMQ + ioredis helpers
+    ├── ai/       Vercel AI SDK wrappers (Claude + OpenAI)
+    └── pdf/      PDFKit report generation
+```
+
+## Internal packages
+
+Packages ship raw TypeScript (no build step). Bun runs them directly for the
+API and worker, and Next transpiles them via `transpilePackages`. Each package
+exposes a single `@medai/*` entry point.
+
+## Request flow
+
+1. The **web** app streams chat via `app/api/chat/route.ts`, which calls
+   `streamChat()` from `@medai/ai`.
+2. The **API** handles auth and one-shot completions, enqueuing long-running
+   work (PDF reports) onto BullMQ.
+3. The **worker** consumes those jobs, generates PDFs with `@medai/pdf`, and
+   writes results back.

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "MedAI",
+  "colors": {
+    "primary": "#0E9F6E",
+    "light": "#34D399",
+    "dark": "#065F46"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["index", "quickstart", "architecture"]
+          },
+          {
+            "group": "Platform",
+            "pages": ["packages", "auth", "ai"]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com"
+    }
+  }
+}

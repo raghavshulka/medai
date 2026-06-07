@@ -1,0 +1,23 @@
+{
+  "name": "@medai/queue",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@medai/config": "workspace:*",
+    "@medai/logger": "workspace:*",
+    "bullmq": "^5.78.0",
+    "ioredis": "5.10.1"
+  },
+  "devDependencies": {
+    "@medai/typescript-config": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}

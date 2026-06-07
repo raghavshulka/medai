@@ -1,0 +1,44 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# bun (the lockfile IS committed for reproducible installs)
+.bun
+
+# turbo
+.turbo
+
+# builds
+dist
+build
+.next
+out
+*.tsbuildinfo
+
+# test
+coverage
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# os / editor
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# docker volumes
+.docker-data
+
+# misc
+.cache
+tmp

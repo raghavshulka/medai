@@ -1,0 +1,42 @@
+# Local infrastructure for medai.
+#
+# Redis is required (BullMQ + token store) — start it with `bun run db:up`.
+# MongoDB is OPTIONAL: by default the app connects to MONGODB_URI (e.g. Atlas).
+# If you want a throwaway local Mongo too, start it explicitly:
+#     docker compose --profile mongo up -d
+name: medai
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: medai-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  mongo:
+    image: mongo:8
+    container_name: medai-mongo
+    restart: unless-stopped
+    profiles: ['mongo']
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis-data:
+  mongo-data:

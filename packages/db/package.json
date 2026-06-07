@@ -1,0 +1,23 @@
+{
+  "name": "@medai/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./models": "./src/models/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@medai/config": "workspace:*",
+    "@medai/logger": "workspace:*",
+    "mongoose": "^9.6.3"
+  },
+  "devDependencies": {
+    "@medai/typescript-config": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}
