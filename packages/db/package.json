@@ -4,20 +4,29 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./models": "./src/models/index.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
     "lint": "biome check ."
   },
   "dependencies": {
     "@medai/config": "workspace:*",
     "@medai/logger": "workspace:*",
-    "mongoose": "^9.6.3"
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@medai/typescript-config": "workspace:*",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0",
     "typescript": "^6.0.3"
   }
 }

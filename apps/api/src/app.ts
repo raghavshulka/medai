@@ -1,9 +1,10 @@
+import { getAuth } from '@medai/auth';
+import { toNodeHandler } from 'better-auth/node';
 import cors from 'cors';
 import express, { type Express, json } from 'express';
 import helmet from 'helmet';
 import { corsOrigins } from './env';
 import { errorHandler, notFound } from './middleware/error';
-import { authRouter } from './routes/auth.routes';
 import { chatRouter } from './routes/chat.routes';
 import { healthRouter } from './routes/health.routes';
 import './types';
@@ -14,10 +15,14 @@ export function createApp(): Express {
 
   app.use(helmet());
   app.use(cors({ origin: corsOrigins(), credentials: true }));
+
+  // Better Auth owns everything under /api/auth/*. It reads the raw request
+  // body itself, so it MUST be mounted before express.json().
+  app.all('/api/auth/*splat', toNodeHandler(getAuth()));
+
   app.use(json({ limit: '1mb' }));
 
   app.use('/', healthRouter);
-  app.use('/auth', authRouter);
   app.use('/api', chatRouter);
 
   app.use(notFound);

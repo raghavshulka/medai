@@ -1,13 +1,14 @@
-import { isDbConnected } from '@medai/db';
+import { isDbHealthy } from '@medai/db';
 import { Router } from 'express';
 
 export const healthRouter: Router = Router();
 
-healthRouter.get('/health', (_req, res) => {
+healthRouter.get('/health', async (_req, res) => {
+  const db = (await isDbHealthy()) ? 'connected' : 'disconnected';
   res.json({
     status: 'ok',
     uptime: process.uptime(),
-    db: isDbConnected() ? 'connected' : 'disconnected',
+    db,
     timestamp: new Date().toISOString(),
   });
 });

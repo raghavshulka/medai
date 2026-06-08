@@ -1,28 +1,32 @@
 # MedAI
 
-A medical AI platform — Turborepo monorepo on **Bun**, with an **Express 5** API,
-a **Next.js 16** frontend, **MongoDB**, **Redis**, **BullMQ**, and the
+A medical AI platform — Turborepo monorepo managed with **pnpm**, with an
+**Express 5** API running on the **Bun** runtime, a **Next.js 16** frontend,
+**PostgreSQL** (Prisma 7), **Redis**, **BullMQ**, **Better Auth**, and the
 **Vercel AI SDK** (Claude + OpenAI).
 
 ## Stack
 
 | Layer | Tech |
 | --- | --- |
-| Monorepo | Turborepo, Bun workspaces |
-| API | Bun, Express 5, Zod, Pino |
+| Monorepo | Turborepo, pnpm workspaces |
+| API | Express 5 on the Bun runtime, Zod, Pino |
 | Worker | BullMQ |
 | Frontend | Next.js 16, React 19, TanStack Query, AI SDK |
-| Data | MongoDB (Mongoose 9), Redis (ioredis) |
+| Data | PostgreSQL via Prisma 7 (pg driver adapter), Redis (ioredis) |
+| Auth | Better Auth — email/password, TOTP 2FA, bearer + JWT plugins |
 | AI | Vercel AI SDK, `@ai-sdk/anthropic`, `@ai-sdk/openai` |
-| Auth | JWT access/refresh, bcryptjs, speakeasy (TOTP 2FA) |
 | Docs | Mintlify |
 | Tooling | Biome, Vitest, PDFKit |
+
+> **Two toolchains:** pnpm is the package manager; Bun is the API/worker
+> _runtime_ (`bun --watch`). You need both installed.
 
 ## Layout
 
 ```
 apps/
-  api/    Bun + Express API and BullMQ worker
+  api/    Express API + BullMQ worker (Bun runtime)
   web/    Next.js frontend
   docs/   Mintlify documentation
 packages/
@@ -32,20 +36,23 @@ packages/
 ## Getting started
 
 ```bash
-# 1. Install
-bun install
+# 1. Install (runs `prisma generate` via postinstall)
+pnpm install
 
-# 2. Configure (set MONGODB_URI, JWT secrets, AI keys)
+# 2. Configure (set a BETTER_AUTH_SECRET and your AI keys)
 cp .env.example .env
 
-# 3. Start Redis (MongoDB comes from MONGODB_URI; optional local Mongo: `docker compose --profile mongo up -d`)
-bun run db:up
+# 3. Start Postgres + Redis
+pnpm run db:up
 
-# 4. Run all apps in watch mode
-bun run dev
+# 4. Create the database schema
+pnpm run db:push        # or: pnpm run db:migrate
+
+# 5. Run all apps in watch mode
+pnpm run dev
 ```
 
-- API → http://localhost:4000 (`/health`)
+- API → http://localhost:4000 (`/health`, Better Auth at `/api/auth/*`)
 - Web → http://localhost:3000
 - Docs → http://localhost:3001
 
@@ -57,21 +64,39 @@ bun run dev
 
 | Command | Description |
 | --- | --- |
-| `bun run dev` | Run all apps (Turbo) |
-| `bun run build` | Build all apps/packages |
-| `bun run test` | Run Vitest suites |
-| `bun run typecheck` | Type-check every workspace |
-| `bun run lint` | Biome lint |
-| `bun run check` | Biome format + lint (write) |
-| `bun run db:up` / `db:down` | Start / stop Redis (Docker) |
+| `pnpm run dev` | Run all apps (Turbo) |
+| `pnpm run build` | Build all apps/packages |
+| `pnpm run test` | Run Vitest suites |
+| `pnpm run typecheck` | Type-check every workspace |
+| `pnpm run lint` | Biome lint |
+| `pnpm run check` | Biome format + lint (write) |
+| `pnpm run db:generate` | Regenerate the Prisma client |
+| `pnpm run db:push` / `db:migrate` | Sync / migrate the schema |
+| `pnpm run db:up` / `db:down` | Start / stop Postgres + Redis (Docker) |
 
 ### Running pieces individually
 
 ```bash
-bun --cwd apps/api run dev      # API only
-bun --cwd apps/api run worker   # BullMQ worker
-bun --cwd apps/web run dev      # Web only
-bun --cwd apps/docs run dev     # Docs only
+pnpm --filter @medai/api dev       # API only (bun --watch)
+pnpm --filter @medai/api worker    # BullMQ worker
+pnpm --filter @medai/web dev       # Web only
+pnpm --filter @medai/docs dev      # Docs only
+```
+
+## Auth (Better Auth)
+
+`@medai/auth` configures a Better Auth server instance (Prisma adapter +
+`twoFactor`, `bearer`, and `jwt` plugins). The API mounts it under
+`/api/auth/*`. Clients authenticate with `Authorization: Bearer <token>`:
+
+```bash
+# Sign up
+curl -X POST localhost:4000/api/auth/sign-up/email \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"u@example.com","password":"SecurePass123!","name":"User"}'
+
+# Use the returned token on protected routes
+curl localhost:4000/api/auth/get-session -H 'Authorization: Bearer <token>'
 ```
 
 ## Notes

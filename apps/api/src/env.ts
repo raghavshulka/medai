@@ -1,9 +1,9 @@
 import { lazyEnv, nodeEnvSchema, z } from '@medai/config';
 
 /**
- * Server-level config only. Secrets (JWT, AI keys) and `MONGODB_URI` are
- * validated lazily by their owning packages, so the API can boot and serve
- * health checks even if those are unset / the database is unreachable.
+ * Server-level config only. Secrets (Better Auth, AI keys) and `DATABASE_URL`
+ * are validated lazily by their owning packages, so the API can boot and serve
+ * health checks even if the database is unreachable.
  */
 export const env = lazyEnv(
   z.object({

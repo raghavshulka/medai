@@ -1,12 +1,29 @@
 # Local infrastructure for medai.
 #
-# Redis is required (BullMQ + token store) — start it with `bun run db:up`.
-# MongoDB is OPTIONAL: by default the app connects to MONGODB_URI (e.g. Atlas).
-# If you want a throwaway local Mongo too, start it explicitly:
-#     docker compose --profile mongo up -d
+# Both services are required and start with `pnpm run db:up`:
+#   - PostgreSQL (Prisma datasource, DATABASE_URL)
+#   - Redis      (BullMQ + refresh-token store, REDIS_URL)
 name: medai
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: medai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: medai
+      POSTGRES_PASSWORD: medai
+      POSTGRES_DB: medai
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U medai -d medai']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: medai-redis
@@ -22,21 +39,6 @@ services:
       timeout: 3s
       retries: 5
 
-  mongo:
-    image: mongo:8
-    container_name: medai-mongo
-    restart: unless-stopped
-    profiles: ['mongo']
-    ports:
-      - '27017:27017'
-    volumes:
-      - mongo-data:/data/db
-    healthcheck:
-      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 volumes:
+  postgres-data:
   redis-data:
-  mongo-data:

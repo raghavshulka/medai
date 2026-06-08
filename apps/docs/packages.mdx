@@ -7,8 +7,8 @@ description: The shared internal packages.
 | --- | --- | --- |
 | `@medai/config` | Zod-validated env helpers (`lazyEnv`, `parseEnv`) | zod |
 | `@medai/logger` | Pino logger with redaction | pino |
-| `@medai/db` | Mongoose connection + `User` / `Conversation` models | mongoose |
-| `@medai/auth` | Passwords, JWT pairs, TOTP 2FA, schemas | bcryptjs, jsonwebtoken, speakeasy |
+| `@medai/db` | Prisma 7 client (Postgres) + schema | @prisma/client, @prisma/adapter-pg |
+| `@medai/auth` | Better Auth server instance (2FA, bearer, jwt) | better-auth |
 | `@medai/queue` | BullMQ queues/workers + shared Redis client | bullmq, ioredis |
 | `@medai/ai` | Vercel AI SDK wrappers, Claude + OpenAI | ai, @ai-sdk/\* |
 | `@medai/pdf` | Medical report PDF generation | pdfkit |
@@ -16,7 +16,7 @@ description: The shared internal packages.
 Import anything from its package root:
 
 ```ts
-import { connectMongo, UserModel } from '@medai/db';
-import { issueTokenPair, hashPassword } from '@medai/auth';
+import { getPrisma, type User } from '@medai/db';
+import { getAuth } from '@medai/auth';
 import { streamChat, complete } from '@medai/ai';
 ```

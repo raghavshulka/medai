@@ -16,6 +16,9 @@ build
 out
 *.tsbuildinfo
 
+# prisma generated client (build artifact)
+packages/db/generated
+
 # test
 coverage
 

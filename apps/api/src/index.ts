@@ -1,5 +1,5 @@
 import './load-env';
-import { connectMongo, disconnectMongo } from '@medai/db';
+import { connectDb, disconnectDb } from '@medai/db';
 import { createLogger } from '@medai/logger';
 import { closeRedis } from '@medai/queue';
 import { createApp } from './app';
@@ -15,19 +15,19 @@ function main(): void {
     log.info(`API listening on http://${API_HOST}:${API_PORT}`);
   });
 
-  // Connect to Mongo in the background — the server stays up even if the
+  // Connect to Postgres in the background — the server stays up even if the
   // database is unreachable (health checks report it as disconnected).
-  connectMongo().catch((err: unknown) => {
+  connectDb().catch((err: unknown) => {
     log.warn(
       { err: err instanceof Error ? err.message : String(err) },
-      'MongoDB unavailable at startup; continuing in degraded mode',
+      'PostgreSQL unavailable at startup; continuing in degraded mode',
     );
   });
 
   const shutdown = (signal: string) => {
     log.info(`${signal} received, shutting down`);
     server.close(() => {
-      void Promise.allSettled([disconnectMongo(), closeRedis()]).then(() => process.exit(0));
+      void Promise.allSettled([disconnectDb(), closeRedis()]).then(() => process.exit(0));
     });
     // Force-exit if graceful shutdown stalls.
     setTimeout(() => process.exit(1), 10_000).unref();

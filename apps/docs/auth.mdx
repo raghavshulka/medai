@@ -1,31 +1,52 @@
 ---
 title: Authentication
-description: JWT access/refresh tokens with TOTP two-factor.
+description: Better Auth with bearer tokens and TOTP two-factor.
 ---
+
+Auth is handled by [Better Auth](https://better-auth.com). `@medai/auth`
+configures the server instance with the Prisma adapter and the `twoFactor`,
+`bearer`, and `jwt` plugins; the API mounts it under `/api/auth/*`.
 
 ## Token strategy
 
-- **Access token** — short-lived JWT (`JWT_ACCESS_TTL`, default 15m), sent as a
-  `Bearer` header.
-- **Refresh token** — long-lived JWT (`JWT_REFRESH_TTL`, default 30d) whose `jti`
-  is tracked in Redis. Refreshing **rotates** the token (old `jti` revoked).
-- **tokenVersion** — bump on a user to invalidate every outstanding refresh
-  token at once.
+The **bearer** plugin lets API clients send `Authorization: Bearer <token>`
+instead of relying on cookies. The **jwt** plugin additionally exposes signed
+JWTs (and a JWKS endpoint) for service-to-service verification. Sessions are
+stored in Postgres via Prisma.
 
 ## Endpoints
 
+Better Auth exposes the full set under `/api/auth/*`, including:
+
 | Method | Path | Description |
 | --- | --- | --- |
-| `POST` | `/auth/register` | Create an account, returns a token pair |
-| `POST` | `/auth/login` | Password (+ TOTP if enabled) → token pair |
-| `POST` | `/auth/refresh` | Rotate a refresh token |
-| `POST` | `/auth/logout` | Revoke a refresh token |
-| `GET` | `/auth/me` | Current user (requires access token) |
-| `POST` | `/auth/2fa/setup` | Generate a TOTP secret + QR code |
-| `POST` | `/auth/2fa/enable` | Verify a code, enable 2FA, return recovery codes |
+| `POST` | `/api/auth/sign-up/email` | Create an account, returns a token |
+| `POST` | `/api/auth/sign-in/email` | Email + password → token |
+| `GET` | `/api/auth/get-session` | Resolve the current session |
+| `POST` | `/api/auth/sign-out` | Revoke the session |
+| `POST` | `/api/auth/two-factor/enable` | Begin TOTP enrollment |
+| `POST` | `/api/auth/two-factor/verify-totp` | Verify a TOTP code |
 
-## Two-factor (TOTP)
+## Example
 
-Secrets are generated with **speakeasy**, rendered as a QR code with **qrcode**,
-and verified with a ±1 step window. Recovery codes are shown once and stored as
-SHA-256 hashes.
+```bash
+curl -X POST localhost:4000/api/auth/sign-up/email \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"u@example.com","password":"SecurePass123!","name":"User"}'
+
+curl localhost:4000/api/auth/get-session -H 'Authorization: Bearer <token>'
+```
+
+## Protecting routes
+
+The API's `requireAuth` middleware validates the session via Better Auth and
+populates `req.user` (`id` + `role`). The `role` is a custom additional field
+on the user (`patient` by default).
+
+## Client
+
+The web app uses the Better Auth React client (`apps/web/lib/auth-client.ts`):
+
+```ts
+import { authClient, signIn, useSession } from '@/lib/auth-client';
+```

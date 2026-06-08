@@ -1,0 +1,19 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Force a single ioredis version (bullmq pins exactly 5.10.1).
+overrides:
+  ioredis: 5.10.1
+
+# Dependency lifecycle (build) scripts pnpm is allowed to run.
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true
+  esbuild: true
+  sharp: true
+  keytar: false
+  msgpackr-extract: false
+  puppeteer: false
+  better-sqlite3: false

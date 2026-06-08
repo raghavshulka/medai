@@ -8,14 +8,14 @@ description: How the monorepo fits together.
 ```
 medai/
 ├── apps/
-│   ├── api/    Bun + Express 5 API, BullMQ worker
+│   ├── api/    Express 5 API + BullMQ worker (Bun runtime)
 │   ├── web/    Next.js 16 frontend (TanStack Query, AI SDK)
 │   └── docs/   Mintlify documentation (this site)
 └── packages/
     ├── config/   Zod env helpers shared everywhere
     ├── logger/   Pino logger
-    ├── db/       Mongoose connection + models
-    ├── auth/     Passwords, JWT, TOTP 2FA, Zod schemas
+    ├── db/       Prisma 7 client (Postgres) + schema
+    ├── auth/     Better Auth server instance (2FA, bearer, jwt)
     ├── queue/    BullMQ + ioredis helpers
     ├── ai/       Vercel AI SDK wrappers (Claude + OpenAI)
     └── pdf/      PDFKit report generation
@@ -25,7 +25,8 @@ medai/
 
 Packages ship raw TypeScript (no build step). Bun runs them directly for the
 API and worker, and Next transpiles them via `transpilePackages`. Each package
-exposes a single `@medai/*` entry point.
+exposes a single `@medai/*` entry point. The Prisma client is generated into
+`packages/db/generated` (a gitignored build artifact) by `prisma generate`.
 
 ## Request flow
 

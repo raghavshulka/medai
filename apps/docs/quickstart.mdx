@@ -5,32 +5,38 @@ description: Run the MedAI workspace locally.
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) ≥ 1.3
-- [Docker](https://www.docker.com) (for Redis)
-- A MongoDB connection URL (Atlas or local)
+- [pnpm](https://pnpm.io) ≥ 10 (package manager)
+- [Bun](https://bun.sh) ≥ 1.3 (API / worker runtime)
+- [Docker](https://www.docker.com) (Postgres + Redis)
 
 ## Setup
 
 <Steps>
   <Step title="Install dependencies">
     ```bash
-    bun install
+    pnpm install
     ```
+    This also runs `prisma generate` (postinstall).
   </Step>
   <Step title="Configure environment">
     ```bash
     cp .env.example .env
-    # set MONGODB_URI, JWT secrets, and AI provider keys
+    # set BETTER_AUTH_SECRET and AI provider keys
     ```
   </Step>
-  <Step title="Start Redis">
+  <Step title="Start Postgres + Redis">
     ```bash
-    bun run db:up
+    pnpm run db:up
+    ```
+  </Step>
+  <Step title="Create the schema">
+    ```bash
+    pnpm run db:push
     ```
   </Step>
   <Step title="Run everything">
     ```bash
-    bun run dev
+    pnpm run dev
     ```
     The API runs on `:4000`, the web app on `:3000`, and docs on `:3001`.
   </Step>
@@ -40,8 +46,9 @@ description: Run the MedAI workspace locally.
 
 | Command | Description |
 | --- | --- |
-| `bun run dev` | Run all apps in watch mode |
-| `bun run build` | Build all apps and packages |
-| `bun run test` | Run the test suites |
-| `bun run typecheck` | Type-check every workspace |
-| `bun run check` | Format + lint with Biome |
+| `pnpm run dev` | Run all apps in watch mode |
+| `pnpm run build` | Build all apps and packages |
+| `pnpm run test` | Run the test suites |
+| `pnpm run typecheck` | Type-check every workspace |
+| `pnpm run db:push` | Sync the Prisma schema to Postgres |
+| `pnpm run check` | Format + lint with Biome |

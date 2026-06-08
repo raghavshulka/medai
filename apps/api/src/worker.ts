@@ -1,6 +1,6 @@
 import './load-env';
 import { complete } from '@medai/ai';
-import { connectMongo } from '@medai/db';
+import { connectDb } from '@medai/db';
 import { createLogger } from '@medai/logger';
 import { generateMedicalReport } from '@medai/pdf';
 import { closeRedis, createWorker, type Job, QUEUE_NAMES } from '@medai/queue';
@@ -8,8 +8,8 @@ import { closeRedis, createWorker, type Job, QUEUE_NAMES } from '@medai/queue';
 const log = createLogger('worker');
 
 async function main(): Promise<void> {
-  await connectMongo().catch((err: unknown) => {
-    log.warn({ err: err instanceof Error ? err.message : String(err) }, 'Mongo unavailable');
+  await connectDb().catch((err: unknown) => {
+    log.warn({ err: err instanceof Error ? err.message : String(err) }, 'Postgres unavailable');
   });
 
   const reportWorker = createWorker(QUEUE_NAMES.reportGeneration, async (job: Job) => {

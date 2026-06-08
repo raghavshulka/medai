@@ -4,7 +4,7 @@
   "globalDependencies": [".env", "tsconfig.json"],
   "globalEnv": ["NODE_ENV"],
   "globalPassThroughEnv": [
-    "MONGODB_URI",
+    "DATABASE_URL",
     "REDIS_URL",
     "JWT_ACCESS_SECRET",
     "JWT_REFRESH_SECRET",
@@ -12,8 +12,13 @@
     "OPENAI_API_KEY"
   ],
   "tasks": {
+    "db:generate": {
+      "cache": false,
+      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
+      "outputs": ["generated/**"]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^db:generate", "db:generate"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
@@ -29,7 +34,7 @@
       "outputs": ["coverage/**"]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "^db:generate", "db:generate"]
     },
     "lint": {},
     "clean": {
