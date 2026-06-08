@@ -1,10 +1,3 @@
-// MedAI Prisma schema (PostgreSQL).
-// Generated client lands in ../generated/prisma (gitignored build artifact).
-//
-// The user/session/account/verification/twoFactor/jwks models are owned by
-// Better Auth (email+password, twoFactor, bearer, jwt plugins). Conversation
-// and Message are domain models that relate to the Better Auth user.
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -37,6 +30,17 @@ model User {
   accounts         Account[]
   twofactors       TwoFactor[]
   conversations    Conversation[]
+
+  // ── Hely domain back-relations ──
+  staff                        Staff[]
+  auditLogs                    AuditLog[]
+  auditExports                 AuditExport[]
+  consents                     Consent[]
+  consentHistory               ConsentHistory[]
+  securityEvents               SecurityEvent[]
+  dataSubjectRequests          DataSubjectRequest[] @relation("DataSubjectRequestUser")
+  dataSubjectRequestsProcessed DataSubjectRequest[] @relation("DataSubjectRequestProcessedBy")
+  keyRotations                 KeyRotation[]
 
   @@map("user")
 }
@@ -131,4 +135,1560 @@ model Message {
 
   @@index([conversationId])
   @@map("messages")
+}
+
+// ═══════════════════════════ Enums ═══════════════════════════
+
+// ── Organization ──
+enum OrganizationType {
+  HOSPITAL
+  CLINIC
+  SOLO_PRACTICE
+}
+
+enum OrganizationStatus {
+  PENDING
+  VERIFIED
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum PricingTier {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+// ── Patient ──
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PatientType {
+  OPD
+  IPD
+}
+
+enum PatientStatus {
+  ACTIVE
+  DISCHARGED
+  COMPLETED
+  INACTIVE
+}
+
+// ── Staff ──
+enum StaffShift {
+  MORNING
+  EVENING
+  NIGHT
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+  PASSWORD_EXPIRED
+}
+
+// ── Department ──
+enum DepartmentType {
+  CLINICAL
+  ADMINISTRATIVE
+  SUPPORT
+  DIAGNOSTIC
+  PHARMACY
+  EMERGENCY
+}
+
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// ── Appointment ──
+enum AppointmentType {
+  CONSULTATION
+  FOLLOW_UP
+  PROCEDURE
+  EMERGENCY
+  ROUTINE_CHECK
+}
+
+enum AppointmentPriority {
+  NORMAL
+  URGENT
+  EMERGENCY
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// ── Admission ──
+enum AdmissionStatus {
+  ADMITTED
+  UNDER_TREATMENT
+  DISCHARGED
+  TRANSFERRED
+  ABSCONDED
+}
+
+enum DischargeType {
+  NORMAL
+  LAMA
+  REFERRED
+  EXPIRED
+  ABSCONDED
+}
+
+// ── Vitals (all referenced only inside embedded Json sub-docs) ──
+enum TemperatureUnit {
+  CELSIUS
+  FAHRENHEIT
+}
+
+enum WeightUnit {
+  KG
+  LB
+}
+
+enum HeightUnit {
+  CM
+  IN
+}
+
+enum GlucoseUnit {
+  MG_DL
+  MMOL_L
+}
+
+enum GlucoseTiming {
+  FASTING
+  RANDOM
+  POSTPRANDIAL
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ── Prescription ──
+enum PrescriptionStatus {
+  PENDING
+  DISPENSING
+  DISPENSED
+  COMPLETED
+  CANCELLED
+}
+
+// ── Medicine ──
+enum MedicineCategory {
+  ANALGESICS
+  ANTIBIOTICS
+  ANTIDIABETICS
+  ANTIHYPERTENSIVES
+  ANTIHISTAMINES
+  CARDIOVASCULAR
+  GASTROINTESTINAL
+  RESPIRATORY
+  VITAMINS
+  TOPICAL
+  INJECTABLE
+  OTHER
+}
+
+enum MedicineType {
+  TABLET
+  CAPSULE
+  SYRUP
+  INJECTION
+  CREAM
+  OINTMENT
+  DROPS
+  INHALER
+  POWDER
+  SUSPENSION
+}
+
+// ── Inventory ──
+enum TransactionType {
+  RECEIPT
+  DISPENSING
+  ADJUSTMENT
+  RETURN
+  TRANSFER
+}
+
+enum AdjustmentReason {
+  DAMAGE
+  EXPIRY
+  CORRECTION
+  LOSS
+  RETURN
+  OTHER
+}
+
+// ── Dispensing ──
+enum DispensingStatus {
+  PENDING
+  DISPENSING
+  DISPENSED
+  COLLECTED
+  CANCELLED
+}
+
+enum MedicineDispensingStatus {
+  PENDING
+  DISPENSED
+  UNAVAILABLE
+}
+
+// ── Lab Order ──
+enum LabOrderStatus {
+  ORDERED
+  SAMPLE_COLLECTED
+  RESULTS_ENTERED
+  VERIFIED
+  CANCELLED
+}
+
+enum TestPriority {
+  ROUTINE
+  URGENT
+  STAT
+}
+
+enum ResultFlag {
+  NORMAL
+  LOW
+  HIGH
+  CRITICAL
+}
+
+// ── Test Catalog ──
+enum TestCatalogStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TestCategory {
+  HEMATOLOGY
+  BIOCHEMISTRY
+  MICROBIOLOGY
+  IMMUNOLOGY
+  PATHOLOGY
+  RADIOLOGY
+  CARDIOLOGY
+  OTHER
+}
+
+enum SampleType {
+  BLOOD
+  URINE
+  STOOL
+  SPUTUM
+  SWAB
+  TISSUE
+  CSF
+  OTHER
+}
+
+// ── Clinical Note ──
+enum ClinicalNoteStatus {
+  DRAFT
+  SIGNED
+  AMENDED
+}
+
+enum ClinicalNoteType {
+  SOAP
+  PROGRESS
+  PROCEDURE
+  DISCHARGE
+  CONSULTATION
+  OPERATIVE
+}
+
+enum DiagnosisType {
+  PRIMARY
+  SECONDARY
+}
+
+// ── Medical History ──
+enum AllergySeverity {
+  MILD
+  MODERATE
+  SEVERE
+}
+
+// ── Problem List ──
+enum ProblemStatus {
+  ACTIVE
+  RESOLVED
+}
+
+// ── Telemedicine Visit ──
+enum TelemedicineVisitStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum TelemedicineVisitType {
+  CONSULTATION
+  FOLLOW_UP
+  SECOND_OPINION
+}
+
+// ── Report ──
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+enum ReportType {
+  PATIENT_REGISTRATION   @map("patient-registration")
+  PATIENT_DEMOGRAPHICS   @map("patient-demographics")
+  APPOINTMENT_SUMMARY    @map("appointment-summary")
+  DOCTOR_PERFORMANCE     @map("doctor-performance")
+  PRESCRIPTION_SUMMARY   @map("prescription-summary")
+  MEDICINE_USAGE         @map("medicine-usage")
+  DEPARTMENT_UTILIZATION @map("department-utilization")
+  STAFF_SUMMARY          @map("staff-summary")
+}
+
+enum ReportFormat {
+  json
+  csv
+  pdf
+  xlsx
+}
+
+enum ReportCategory {
+  PATIENT
+  APPOINTMENT
+  PRESCRIPTION
+  OPERATIONAL
+  FINANCIAL
+  COMPLIANCE
+}
+
+// ── Audit Log ──
+enum AuditEventCategory {
+  AUTH
+  PHI
+  ADMIN
+  SECURITY
+  DATA
+}
+
+enum AuditEventType {
+  AUTH_LOGIN
+  AUTH_LOGOUT
+  AUTH_FAILED
+  AUTH_TOKEN_REFRESH
+  AUTH_PASSWORD_CHANGE
+  PHI_VIEW
+  PHI_CREATE
+  PHI_UPDATE
+  PHI_DELETE
+  PHI_EXPORT
+  PHI_PRINT
+  PRESCRIPTION_VIEW
+  PRESCRIPTION_CREATE
+  VITALS_VIEW
+  VITALS_CREATE
+  ADMIN_USER_CREATE
+  ADMIN_USER_UPDATE
+  ADMIN_USER_DEACTIVATE
+  ADMIN_ROLE_CHANGE
+  ADMIN_CONFIG_CHANGE
+  SECURITY_MFA_ENABLE
+  SECURITY_MFA_DISABLE
+  SECURITY_KEY_ROTATE
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+
+// ── Audit Export ──
+enum AuditExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AuditExportFormat {
+  json
+  csv
+  parquet
+}
+
+// ── Consent ──
+enum ConsentPurpose {
+  terms_of_service
+  privacy_policy
+  marketing_emails
+  sms_notifications
+  analytics
+  third_party_sharing
+}
+
+enum ConsentSource {
+  registration
+  settings
+  prompt
+  api
+}
+
+// ── Consent History ──
+enum ConsentHistoryAction {
+  granted
+  withdrawn
+  updated
+}
+
+// ── Security Event ──
+enum SecurityEventType {
+  AUTH_FAILED
+  AUTH_LOCKOUT
+  PERMISSION_DENIED
+  MFA_FAILED
+  MFA_ENABLED
+  MFA_DISABLED
+  SUSPICIOUS_ACTIVITY
+  KEY_ROTATION
+  ADMIN_ACTION
+}
+
+enum SecurityEventSeverity {
+  low
+  medium
+  high
+  critical
+}
+
+// ── Data Subject Request ──
+enum DataSubjectRequestType {
+  EXPORT
+  DELETION
+}
+
+enum DataSubjectRequestStatus {
+  PENDING
+  PENDING_VERIFICATION
+  VERIFICATION_EXPIRED
+  VERIFIED
+  PROCESSING
+  COMPLETED
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+enum DataExportFormat {
+  json
+  csv
+}
+
+enum AdminAction {
+  approve
+  reject
+  expedite
+}
+
+// ── Subscription ──
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  ON_HOLD
+  CANCELLED
+  EXPIRED
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+// ═══════════════════════════ Models ═══════════════════════════
+
+// ─── Core ───
+
+model Organization {
+  id                  String              @id
+  name                String
+  slug                String              @unique
+  type                OrganizationType    @default(HOSPITAL)
+  licenseNumber       String?             @unique
+  /// embedded: { street, city, state, postalCode, country }
+  address             Json?
+  contactEmail        String
+  contactPhone        String
+  adminEmail          String
+  adminPhone          String
+  status              OrganizationStatus? @default(PENDING)
+  pricingTier         PricingTier?        @default(FREE)
+  dodoCustomerId      String?
+  verificationToken   String?
+  verificationExpires DateTime?
+  /// embedded: { appName, logoUrl, faviconUrl, supportEmail, primaryColor, accentColor, customDomain }
+  branding            Json?
+  settings            Json?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  // ── back-relations ──
+  patients              Patient[]
+  staff                 Staff[]
+  departments           Department[]
+  roles                 Role[]
+  counters              Counter[]
+  appointments          Appointment[]
+  admissions            Admission[]
+  vitals                Vitals[]
+  prescriptions         Prescription[]
+  prescriptionTemplates PrescriptionTemplate[]
+  medicines             Medicine[]
+  inventory             Inventory[]
+  inventoryTransactions InventoryTransaction[]
+  dispensings           Dispensing[]
+  labOrders             LabOrder[]
+  testCatalogs          TestCatalog[]
+  clinicalNotes         ClinicalNote[]
+  medicalHistories      MedicalHistory[]
+  problemLists          ProblemList[]
+  telemedicineVisits    TelemedicineVisit[]
+  reports               Report[]
+  auditLogs             AuditLog[]
+  auditExports          AuditExport[]
+  consents              Consent[]
+  consentHistory        ConsentHistory[]
+  securityEvents        SecurityEvent[]
+  dataSubjectRequests   DataSubjectRequest[]
+  subscriptions         Subscription[]
+
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  // TODO: dotted-key index { "branding.customDomain": 1 } (unique, sparse) — cannot index inside Json
+  @@map("organization")
+}
+
+model Patient {
+  id               String         @id
+  /// ref -> Organization
+  tenantId         String
+  organization     Organization   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  patientId        String
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  gender           Gender
+  bloodGroup       String?
+  phone            String
+  email            String?
+  /// embedded: { street, city, state, postalCode, country }
+  address          Json?
+  /// embedded (required): { name, relationship, phone }
+  emergencyContact Json
+  photoUrl         String?
+  patientType      PatientType
+  /// ref -> Department
+  departmentId     String?
+  department       Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  /// ref -> Staff
+  assignedDoctorId String?
+  doctor           Staff?         @relation("PatientAssignedDoctor", fields: [assignedDoctorId], references: [id], onDelete: SetNull)
+  status           PatientStatus? @default(ACTIVE)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // ── back-relations ──
+  appointments       Appointment[]
+  admissions         Admission[]
+  vitals             Vitals[]
+  prescriptions      Prescription[]
+  labOrders          LabOrder[]
+  clinicalNotes      ClinicalNote[]
+  medicalHistory     MedicalHistory[]
+  problems           ProblemList[]
+  telemedicineVisits TelemedicineVisit[]
+
+  @@unique([tenantId, patientId])
+  @@index([tenantId, phone])
+  @@index([tenantId, email])
+  @@index([tenantId, patientType, status])
+  @@index([tenantId, departmentId])
+  @@index([tenantId, assignedDoctorId])
+  @@index([tenantId, firstName, lastName])
+  @@index([tenantId, createdAt])
+  @@map("patient")
+}
+
+model Staff {
+  id                  String       @id
+  /// ref -> Organization
+  tenantId            String
+  organization        Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> User
+  userId              String
+  user                User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  employeeId          String
+  firstName           String
+  lastName            String
+  phone               String?
+  /// ref -> Department
+  departmentId        String?
+  department          Department?  @relation("DepartmentStaff", fields: [departmentId], references: [id], onDelete: SetNull)
+  /// ref -> Role (scalar list; cannot be a Postgres relation FK — kept as scalar)
+  roles               String[]
+  specialization      String?
+  shift               StaffShift?
+  status              StaffStatus? @default(ACTIVE)
+  lastLogin           DateTime?
+  deactivatedAt       DateTime?
+  passwordHistory     String[]
+  forcePasswordChange Boolean?     @default(false)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  // ── back-relations ──
+  assignedPatients       Patient[]              @relation("PatientAssignedDoctor")
+  headedDepartments      Department[]           @relation("DepartmentHead")
+  appointmentsAsDoctor   Appointment[]          @relation("AppointmentDoctor")
+  appointmentsCancelled  Appointment[]          @relation("AppointmentCancelledBy")
+  appointmentsCreated    Appointment[]          @relation("AppointmentCreatedBy")
+  admissionsAsDoctor     Admission[]            @relation("AdmissionDoctor")
+  admissionsAdmitted     Admission[]            @relation("AdmissionAdmittedBy")
+  admissionsDischarged   Admission[]            @relation("AdmissionDischargedBy")
+  vitalsRecorded         Vitals[]
+  prescriptionsAsDoctor  Prescription[]         @relation("PrescriptionDoctor")
+  prescriptionsCancelled Prescription[]         @relation("PrescriptionCancelledBy")
+  prescriptionTemplates  PrescriptionTemplate[]
+  inventoryTransactions  InventoryTransaction[]
+  dispensings            Dispensing[]
+  labOrdersAsDoctor      LabOrder[]             @relation("LabOrderDoctor")
+  labOrdersResultEntered LabOrder[]             @relation("LabOrderResultEnteredBy")
+  labOrdersVerified      LabOrder[]             @relation("LabOrderVerifiedBy")
+  clinicalNotesAuthored  ClinicalNote[]         @relation("ClinicalNoteAuthor")
+  clinicalNotesSigned    ClinicalNote[]         @relation("ClinicalNoteSignedBy")
+  problemsAdded          ProblemList[]
+  telemedicineVisits     TelemedicineVisit[]
+  subscriptionsCancelled Subscription[]
+
+  @@unique([tenantId, userId])
+  @@unique([tenantId, employeeId])
+  @@index([tenantId, departmentId])
+  @@index([tenantId, status])
+  @@index([tenantId, roles])
+  @@map("staff")
+}
+
+model Department {
+  id             String            @id
+  /// ref -> Organization
+  tenantId       String
+  organization   Organization      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  name           String
+  code           String
+  description    String?
+  type           DepartmentType
+  /// ref -> Department
+  parentId       String?
+  parent         Department?       @relation("DepartmentHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  /// ref -> Staff
+  headId         String?
+  head           Staff?            @relation("DepartmentHead", fields: [headId], references: [id], onDelete: SetNull)
+  location       String?
+  /// embedded: { phone, email }
+  contact        Json?
+  /// embedded: weekly hours { monday..sunday: { start, end } }
+  operatingHours Json?
+  status         DepartmentStatus? @default(ACTIVE)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  // ── back-relations ──
+  children     Department[]  @relation("DepartmentHierarchy")
+  staff        Staff[]       @relation("DepartmentStaff")
+  patients     Patient[]
+  appointments Appointment[]
+  admissions   Admission[]
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, name])
+  @@index([tenantId, status])
+  @@index([tenantId, type])
+  @@index([tenantId, parentId])
+  @@map("department")
+}
+
+model Role {
+  id           String       @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  name         String
+  description  String?
+  permissions  String[]
+  isSystem     Boolean?     @default(false)
+  isActive     Boolean?     @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([tenantId, name])
+  @@index([tenantId, isActive])
+  @@map("role")
+}
+
+model Counter {
+  id           String       @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// free-form string to support dynamic counters (e.g., queue-{doctorId}-{date})
+  type         String
+  seq          Int?         @default(0)
+
+  @@unique([tenantId, type])
+  @@map("counter")
+}
+
+model Appointment {
+  id                 String               @id
+  /// ref -> Organization
+  tenantId           String
+  organization       Organization         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  appointmentNumber  String
+  /// ref -> Patient
+  patientId          String
+  patient            Patient              @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Staff
+  doctorId           String
+  doctor             Staff                @relation("AppointmentDoctor", fields: [doctorId], references: [id], onDelete: Restrict)
+  /// ref -> Department
+  departmentId       String
+  department         Department           @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  date               DateTime
+  /// embedded (required): { start, end }
+  timeSlot           Json
+  type               AppointmentType
+  priority           AppointmentPriority? @default(NORMAL)
+  reason             String?
+  notes              String?
+  status             AppointmentStatus?   @default(SCHEDULED)
+  queueNumber        Int?
+  checkedInAt        DateTime?
+  completedAt        DateTime?
+  followUpRequired   Boolean?
+  followUpDate       DateTime?
+  cancelledAt        DateTime?
+  /// ref -> Staff
+  cancelledBy        String?
+  canceller          Staff?               @relation("AppointmentCancelledBy", fields: [cancelledBy], references: [id], onDelete: SetNull)
+  cancellationReason String?
+  /// ref -> Staff
+  createdBy          String?
+  creator            Staff?               @relation("AppointmentCreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  // ── back-relations ──
+  vitals        Vitals[]
+  prescriptions Prescription[]
+  labOrders     LabOrder[]
+  clinicalNotes ClinicalNote[]
+
+  @@unique([tenantId, appointmentNumber])
+  @@index([tenantId, patientId, date])
+  @@index([tenantId, doctorId, date])
+  @@index([tenantId, departmentId, date])
+  @@index([tenantId, date, status])
+  @@index([tenantId, status])
+  @@map("appointment")
+}
+
+model Admission {
+  id                   String           @id
+  /// ref -> Organization
+  tenantId             String
+  organization         Organization     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  admissionNumber      String
+  /// ref -> Patient
+  patientId            String
+  patient              Patient          @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Staff
+  doctorId             String
+  doctor               Staff            @relation("AdmissionDoctor", fields: [doctorId], references: [id], onDelete: Restrict)
+  /// ref -> Department
+  departmentId         String
+  department           Department       @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  admissionDate        DateTime
+  dischargeDate        DateTime?
+  bedNumber            String?
+  roomNumber           String?
+  ward                 String?
+  admissionReason      String
+  provisionalDiagnosis String?
+  finalDiagnosis       String?
+  status               AdmissionStatus? @default(ADMITTED)
+  dischargeType        DischargeType?
+  dischargeSummary     String?
+  notes                String?
+  /// ref -> Staff
+  admittedBy           String?
+  admitter             Staff?           @relation("AdmissionAdmittedBy", fields: [admittedBy], references: [id], onDelete: SetNull)
+  /// ref -> Staff
+  dischargedBy         String?
+  discharger           Staff?           @relation("AdmissionDischargedBy", fields: [dischargedBy], references: [id], onDelete: SetNull)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  // ── back-relations ──
+  vitals        Vitals[]
+  labOrders     LabOrder[]
+  clinicalNotes ClinicalNote[]
+
+  @@unique([tenantId, admissionNumber])
+  @@index([tenantId, patientId, admissionDate])
+  @@index([tenantId, doctorId, status])
+  @@index([tenantId, departmentId, status])
+  @@index([tenantId, status])
+  @@index([tenantId, admissionDate])
+  @@index([tenantId, bedNumber, roomNumber])
+  @@map("admission")
+}
+
+model Vitals {
+  id               String       @id
+  /// ref -> Organization
+  tenantId         String
+  organization     Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Patient
+  patientId        String
+  patient          Patient      @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Appointment
+  appointmentId    String?
+  appointment      Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  /// ref -> Admission
+  admissionId      String?
+  admission        Admission?   @relation(fields: [admissionId], references: [id], onDelete: SetNull)
+  /// embedded: { value Float, unit TemperatureUnit }
+  temperature      Json?
+  /// embedded: { systolic Int, diastolic Int }
+  bloodPressure    Json?
+  heartRate        Int?
+  respiratoryRate  Int?
+  oxygenSaturation Int?
+  /// embedded: { value Float, unit WeightUnit }
+  weight           Json?
+  /// embedded: { value Float, unit HeightUnit }
+  height           Json?
+  bmi              Float?
+  /// embedded: { value Float, unit GlucoseUnit, timing GlucoseTiming }
+  bloodGlucose     Json?
+  painLevel        Int?
+  notes            String?
+  correctionReason String?
+  /// embedded[]: { type, parameter, value Float, severity AlertSeverity }
+  alerts           Json?
+  /// ref -> Staff
+  recordedBy       String
+  recorder         Staff        @relation(fields: [recordedBy], references: [id], onDelete: Restrict)
+  recordedAt       DateTime
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([tenantId, patientId, recordedAt])
+  @@index([tenantId, appointmentId])
+  @@index([tenantId, admissionId])
+  @@index([tenantId, recordedAt])
+  // TODO: dotted-key index { "alerts.severity": 1 } — cannot index inside Json
+  @@map("vitals")
+}
+
+// ─── Clinical ───
+
+model Prescription {
+  id                 String                @id
+  /// ref -> Organization
+  tenantId           String
+  organization       Organization          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  prescriptionId     String
+  /// ref -> Patient
+  patientId          String
+  patient            Patient               @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Staff
+  doctorId           String
+  doctor             Staff                 @relation("PrescriptionDoctor", fields: [doctorId], references: [id], onDelete: Restrict)
+  /// ref -> Appointment
+  appointmentId      String?
+  appointment        Appointment?          @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  diagnosis          String
+  notes              String?
+  /// embedded[]: { medicineId, name, genericName, dosage, frequency, duration, route, quantity Int, instructions, dispensed Boolean, dispensedQuantity Int }
+  medicines          Json?
+  status             PrescriptionStatus?   @default(PENDING)
+  followUpDate       DateTime?
+  /// ref -> PrescriptionTemplate
+  templateId         String?
+  template           PrescriptionTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  cancelledAt        DateTime?
+  /// ref -> Staff
+  cancelledBy        String?
+  canceller          Staff?                @relation("PrescriptionCancelledBy", fields: [cancelledBy], references: [id], onDelete: SetNull)
+  cancellationReason String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  // ── back-relations ──
+  dispensings Dispensing[]
+
+  @@unique([tenantId, prescriptionId])
+  @@index([tenantId, patientId, createdAt])
+  @@index([tenantId, doctorId, createdAt])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@map("prescription")
+}
+
+model PrescriptionTemplate {
+  id           String       @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  name         String
+  category     String?
+  condition    String?
+  /// embedded[]: { medicineId, name, genericName, dosage, frequency, duration, route, instructions }
+  medicines    Json?
+  isSystem     Boolean?     @default(false)
+  /// ref -> Staff
+  createdBy    String?
+  creator      Staff?       @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // ── back-relations ──
+  prescriptions Prescription[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId, category])
+  @@map("prescription_template")
+}
+
+model Medicine {
+  id           String           @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  name         String
+  genericName  String?
+  code         String
+  category     MedicineCategory
+  type         MedicineType
+  manufacturer String?
+  strength     String?
+  unit         String
+  description  String?
+  isActive     Boolean?         @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // ── back-relations ──
+  inventory Inventory[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, name])
+  @@index([tenantId, genericName])
+  @@index([tenantId, category, isActive])
+  @@map("medicine")
+}
+
+model Inventory {
+  id            String       @id
+  /// ref -> Organization
+  tenantId      String
+  organization  Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Medicine
+  medicineId    String
+  medicine      Medicine     @relation(fields: [medicineId], references: [id], onDelete: Restrict)
+  currentStock  Int?         @default(0)
+  reorderLevel  Int?         @default(10)
+  maxStock      Int?
+  location      String?
+  /// embedded[] (_id:true): { batchNumber, quantity Float, expiryDate DateTime, purchasePrice Float, receivedDate DateTime, supplier }
+  batches       Json?
+  lastRestocked DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // ── back-relations ──
+  transactions InventoryTransaction[]
+
+  @@unique([tenantId, medicineId])
+  @@index([tenantId, currentStock, reorderLevel])
+  // TODO: dotted-key index { "batches.expiryDate": 1 } — cannot index inside Json
+  @@map("inventory")
+}
+
+model InventoryTransaction {
+  id           String          @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Inventory
+  inventoryId  String
+  inventory    Inventory       @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  type         TransactionType
+  quantity     Float
+  batchNumber  String?
+  reference    String?
+  reason       String?
+  /// ref -> Staff
+  performedBy  String
+  performer    Staff           @relation(fields: [performedBy], references: [id], onDelete: Restrict)
+  performedAt  DateTime
+  createdAt    DateTime        @default(now())
+
+  @@index([tenantId, inventoryId, performedAt])
+  @@index([tenantId, type, performedAt])
+  @@index([tenantId, performedAt])
+  @@map("inventory_transaction")
+}
+
+model Dispensing {
+  id               String            @id
+  /// ref -> Organization
+  tenantId         String
+  organization     Organization      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Prescription
+  prescriptionId   String
+  prescription     Prescription      @relation(fields: [prescriptionId], references: [id], onDelete: Restrict)
+  status           DispensingStatus? @default(PENDING)
+  /// ref -> Staff
+  assignedTo       String?
+  assignee         Staff?            @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+  startedAt        DateTime?
+  completedAt      DateTime?
+  collectedAt      DateTime?
+  /// embedded[]: { medicineId, dispensedQuantity Int, batchNumber, expiryDate DateTime, substituted Boolean, substituteNote, status MedicineDispensingStatus }
+  medicines        Json?
+  notes            String?
+  patientCounseled Boolean?          @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([tenantId, prescriptionId])
+  @@index([tenantId, status])
+  @@index([tenantId, assignedTo, status])
+  @@index([tenantId, createdAt])
+  @@map("dispensing")
+}
+
+model LabOrder {
+  id                   String          @id
+  /// ref -> Organization
+  tenantId             String
+  organization         Organization    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  orderId              String
+  /// ref -> Patient
+  patientId            String
+  patient              Patient         @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Staff
+  doctorId             String
+  doctor               Staff           @relation("LabOrderDoctor", fields: [doctorId], references: [id], onDelete: Restrict)
+  /// ref -> Appointment
+  appointmentId        String?
+  appointment          Appointment?    @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  /// ref -> Admission
+  admissionId          String?
+  admission            Admission?      @relation(fields: [admissionId], references: [id], onDelete: SetNull)
+  /// embedded[]: { testId, testName, testCode, priority TestPriority, status LabOrderStatus, clinicalNotes, resultDetails { value, unit, normalRange, flag ResultFlag, interpretation } }
+  tests                Json?
+  status               LabOrderStatus? @default(ORDERED)
+  /// embedded: { sampleType SampleType, collectedBy (ref Staff), collectedAt DateTime, sampleId, notes }
+  sampleDetails        Json?
+  /// ref -> Staff
+  resultEnteredBy      String?
+  resultEnterer        Staff?          @relation("LabOrderResultEnteredBy", fields: [resultEnteredBy], references: [id], onDelete: SetNull)
+  resultEnteredAt      DateTime?
+  resultNotes          String?
+  /// ref -> Staff
+  verifiedBy           String?
+  verifier             Staff?          @relation("LabOrderVerifiedBy", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  verifiedAt           DateTime?
+  verificationComments String?
+  diagnosis            String?
+  notes                String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@unique([tenantId, orderId])
+  @@index([tenantId, patientId, createdAt])
+  @@index([tenantId, doctorId, createdAt])
+  @@index([tenantId, status])
+  @@map("labOrder")
+}
+
+model TestCatalog {
+  id              String             @id
+  /// ref -> Organization
+  tenantId        String
+  organization    Organization       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  name            String
+  code            String
+  category        TestCategory
+  sampleType      SampleType
+  turnaroundTime  String?
+  price           Float?
+  /// embedded[]: { label, min Float, max Float, unit, gender (MALE|FEMALE|ALL, default ALL) }
+  referenceRanges Json?
+  status          TestCatalogStatus? @default(ACTIVE)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+  @@index([tenantId, category])
+  @@map("testCatalog")
+}
+
+model ClinicalNote {
+  id             String             @id
+  /// ref -> Organization
+  tenantId       String
+  organization   Organization       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  noteId         String             @unique
+  /// ref -> Patient
+  patientId      String
+  patient        Patient            @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Appointment
+  encounterId    String?
+  encounter      Appointment?       @relation(fields: [encounterId], references: [id], onDelete: SetNull)
+  /// ref -> Admission
+  admissionId    String?
+  admission      Admission?         @relation(fields: [admissionId], references: [id], onDelete: SetNull)
+  type           ClinicalNoteType
+  chiefComplaint String?
+  subjective     String?
+  objective      String?
+  assessment     String?
+  plan           String?
+  content        String?
+  /// embedded[]: { code, description, type DiagnosisType }
+  diagnosis      Json?
+  /// embedded[]: { code, description }
+  procedures     Json?
+  status         ClinicalNoteStatus @default(DRAFT)
+  /// ref -> Staff
+  authorId       String
+  author         Staff              @relation("ClinicalNoteAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  /// ref -> Staff
+  signedBy       String?
+  signer         Staff?             @relation("ClinicalNoteSignedBy", fields: [signedBy], references: [id], onDelete: SetNull)
+  signedAt       DateTime?
+  /// embedded[]: { reason, content, amendedBy (ref Staff), amendedAt DateTime }
+  amendments     Json?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([tenantId, patientId, createdAt])
+  @@index([tenantId, authorId, createdAt])
+  @@index([tenantId, type])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, encounterId])
+  @@index([tenantId, updatedAt])
+  @@map("clinical_notes")
+}
+
+model MedicalHistory {
+  id                 String       @id
+  /// ref -> Organization
+  tenantId           String
+  organization       Organization @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Patient
+  patientId          String
+  patient            Patient      @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// embedded[]: { allergen, reaction, severity AllergySeverity }
+  allergies          Json?
+  /// embedded[]: { name, dosage, frequency, startDate DateTime, endDate DateTime }
+  medications        Json?
+  /// embedded[]: { procedure, date DateTime, notes }
+  surgicalHistory    Json?
+  /// embedded[]: { condition, relationship, notes }
+  familyHistory      Json?
+  /// embedded: { smoking, alcohol, exercise, occupation, notes }
+  socialHistory      Json?
+  /// embedded[]: { vaccine, date DateTime, notes }
+  immunizations      Json?
+  /// embedded[]: { condition, diagnosedDate DateTime, status, notes }
+  pastMedicalHistory Json?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@unique([tenantId, patientId])
+  @@map("medical_histories")
+}
+
+model ProblemList {
+  id           String        @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Patient
+  patientId    String
+  patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  code         String
+  description  String
+  status       ProblemStatus @default(ACTIVE)
+  onsetDate    DateTime?
+  resolvedDate DateTime?
+  notes        String?
+  /// ref -> Staff
+  addedBy      String
+  adder        Staff         @relation(fields: [addedBy], references: [id], onDelete: Restrict)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([tenantId, patientId, status])
+  @@index([tenantId, patientId, code])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, patientId, createdAt])
+  @@map("problem_lists")
+}
+
+model TelemedicineVisit {
+  id                 String                  @id
+  /// ref -> Organization
+  tenantId           String
+  organization       Organization            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Patient
+  patientId          String
+  patient            Patient                 @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  /// ref -> Staff
+  providerId         String
+  provider           Staff                   @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  visitId            String                  @unique
+  scheduledAt        DateTime
+  duration           Int?                    @default(30)
+  startedAt          DateTime?
+  endedAt            DateTime?
+  status             TelemedicineVisitStatus @default(SCHEDULED)
+  type               TelemedicineVisitType
+  meetingLink        String?
+  notes              String?
+  reason             String
+  diagnosis          String?
+  prescription       String?
+  cancellationReason String?
+  cancelledBy        String?
+  cancelledAt        DateTime?
+  metadata           Json?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@index([tenantId, patientId, scheduledAt])
+  @@index([tenantId, providerId, scheduledAt])
+  @@index([tenantId, status])
+  @@index([tenantId, scheduledAt])
+  @@map("telemedicine_visits")
+}
+
+// ─── Reporting ───
+
+model Report {
+  id           String         @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  reportType   ReportType
+  category     ReportCategory
+  status       ReportStatus?  @default(PENDING)
+  format       ReportFormat?  @default(json)
+  parameters   Json
+  data         Json?
+  summary      Json?
+  /// embedded (required): { id, name }
+  generatedBy  Json
+  generatedAt  DateTime?
+  expiresAt    DateTime?
+  errorMessage String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, generatedAt])
+  @@index([tenantId, reportType, status])
+  // TODO: dotted-key index { "generatedBy.id": 1 } — cannot index inside Json
+  // NOTE: original had a TTL index on expiresAt (expireAfterSeconds: 0); Prisma has no TTL support
+  @@index([expiresAt])
+  @@map("report")
+}
+
+// ─── Compliance ───
+
+model AuditLog {
+  id           String             @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  eventType    AuditEventType
+  category     AuditEventCategory
+  /// ref -> User
+  userId       String
+  user         User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userName     String
+  resourceType String?
+  resourceId   String?
+  action       AuditAction?
+  ip           String?
+  userAgent    String?
+  sessionId    String?
+  details      Json?
+  before       Json?
+  after        Json?
+  hash         String
+  previousHash String?
+  timestamp    DateTime           @default(now())
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([tenantId, timestamp])
+  @@index([tenantId, userId, timestamp])
+  @@index([tenantId, resourceType, resourceId, timestamp])
+  @@index([tenantId, category, timestamp])
+  @@index([tenantId, eventType, timestamp])
+  @@map("audit_log")
+}
+
+model AuditExport {
+  id               String            @id
+  /// ref -> Organization
+  tenantId         String
+  organization     Organization      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  status           AuditExportStatus @default(PENDING)
+  format           AuditExportFormat @default(json)
+  startDate        DateTime
+  endDate          DateTime
+  categories       String[]
+  estimatedRecords Int?
+  processedRecords Int?              @default(0)
+  downloadUrl      String?
+  errorMessage     String?
+  /// ref -> User
+  requestedBy      String
+  requester        User              @relation(fields: [requestedBy], references: [id], onDelete: Restrict)
+  completedAt      DateTime?
+  expiresAt        DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status])
+  // NOTE: original had a TTL index on expiresAt (expireAfterSeconds: 0); Prisma has no TTL support
+  @@index([expiresAt])
+  @@map("audit_export")
+}
+
+model Consent {
+  id           String         @id
+  /// ref -> Organization
+  tenantId     String
+  organization Organization   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> User
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  purpose      ConsentPurpose
+  description  String?
+  granted      Boolean
+  version      String?        @default("1.0")
+  source       ConsentSource
+  ipAddress    String?
+  userAgent    String?
+  grantedAt    DateTime?
+  withdrawnAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // ── back-relations ──
+  history ConsentHistory[]
+
+  @@unique([tenantId, userId, purpose])
+  @@index([tenantId, userId])
+  @@index([tenantId, purpose, granted])
+  @@map("consent")
+}
+
+model ConsentHistory {
+  id            String               @id
+  /// ref -> Organization
+  tenantId      String
+  organization  Organization         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> Consent
+  consentId     String
+  consent       Consent              @relation(fields: [consentId], references: [id], onDelete: Restrict)
+  /// ref -> User
+  userId        String
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  purpose       String
+  action        ConsentHistoryAction
+  version       String?
+  source        String
+  ipAddress     String?
+  userAgent     String?
+  timestamp     DateTime             @default(now())
+  previousState Json?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([tenantId, userId, purpose, timestamp])
+  @@index([tenantId, consentId, timestamp])
+  @@index([tenantId, userId, timestamp])
+  @@map("consent_history")
+}
+
+model SecurityEvent {
+  id           String                @id
+  /// ref -> Organization
+  tenantId     String?
+  organization Organization?         @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  type         SecurityEventType
+  severity     SecurityEventSeverity
+  /// ref -> User
+  userId       String?
+  user         User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ip           String?
+  userAgent    String?
+  details      Json?
+  timestamp    DateTime              @default(now())
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([tenantId, type])
+  @@index([tenantId, severity])
+  @@index([tenantId, timestamp])
+  @@index([tenantId, userId, timestamp])
+  // NOTE: original had a TTL index on timestamp (expireAfterSeconds: 90 days); Prisma has no TTL support
+  @@index([timestamp])
+  @@map("security_event")
+}
+
+model DataSubjectRequest {
+  id                      String                   @id
+  /// ref -> Organization
+  tenantId                String
+  organization            Organization             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  /// ref -> User
+  userId                  String
+  user                    User                     @relation("DataSubjectRequestUser", fields: [userId], references: [id], onDelete: Restrict)
+  userEmail               String
+  type                    DataSubjectRequestType
+  status                  DataSubjectRequestStatus @default(PENDING)
+  format                  DataExportFormat?
+  includeAuditLog         Boolean?                 @default(true)
+  reason                  String?
+  confirmEmail            String?
+  verificationToken       String?                  @unique
+  verificationTokenExpiry DateTime?
+  verifiedAt              DateTime?
+  scheduledAt             DateTime?
+  gracePeriodEnds         DateTime?
+  completedAt             DateTime?
+  downloadUrl             String?
+  downloadExpiry          DateTime?
+  exportData              Json?
+  /// ref -> User
+  processedBy             String?
+  processor               User?                    @relation("DataSubjectRequestProcessedBy", fields: [processedBy], references: [id], onDelete: SetNull)
+  processedAt             DateTime?
+  adminAction             AdminAction?
+  adminNotes              String?
+  ipAddress               String?
+  userAgent               String?
+  metadata                Json?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+
+  @@index([tenantId, userId, type, status])
+  @@index([tenantId, status, createdAt])
+  @@index([scheduledAt])
+  @@index([downloadExpiry])
+  @@map("data_subject_request")
+}
+
+model KeyRotation {
+  id                 String   @id
+  keyId              String
+  rotatedAt          DateTime @default(now())
+  /// ref -> User
+  rotatedBy          String
+  rotator            User     @relation(fields: [rotatedBy], references: [id], onDelete: Restrict)
+  recordsReEncrypted Int?     @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([rotatedAt])
+  @@index([keyId])
+  @@map("key_rotation")
+}
+
+// ─── Business ───
+
+model Subscription {
+  id                 String              @id
+  /// ref -> Organization
+  tenantId           String
+  organization       Organization        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  dodoCustomerId     String
+  dodoSubscriptionId String
+  dodoProductId      String
+  status             SubscriptionStatus? @default(PENDING)
+  billingCycle       BillingCycle
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean?            @default(false)
+  trialEndsAt        DateTime?
+  onHoldSince        DateTime?
+  gracePeriodEndsAt  DateTime?
+  cancelledAt        DateTime?
+  /// ref -> Staff
+  cancelledBy        String?
+  canceller          Staff?              @relation(fields: [cancelledBy], references: [id], onDelete: SetNull)
+  metadata           Json?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@unique([tenantId])
+  @@unique([dodoSubscriptionId])
+  @@index([dodoCustomerId])
+  @@index([status])
+  @@index([gracePeriodEndsAt])
+  @@index([currentPeriodEnd])
+  @@map("subscription")
 }

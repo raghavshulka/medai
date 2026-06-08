@@ -12,6 +12,7 @@
     "lint": "biome check ."
   },
   "dependencies": {
+    "@better-auth/infra": "^0.2.13",
     "@medai/ai": "workspace:*",
     "@medai/auth": "workspace:*",
     "@medai/config": "workspace:*",
@@ -19,6 +20,7 @@
     "@medai/logger": "workspace:*",
     "@medai/pdf": "workspace:*",
     "@medai/queue": "workspace:*",
+    "axios": "^1.17.0",
     "better-auth": "^1.6.14",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
